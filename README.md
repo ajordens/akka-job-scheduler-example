@@ -9,12 +9,14 @@ Dependencies
 ------------
 
 Akka version = 1.3
+
 Akka API = Java
 
 Instructions
 ------------
-# Install Maven
-# mvn -Pserver clean compile exec:exec
-# mvn -Pclient clean compile exec:exec -Dserver.host=localhost
+
+1. Install Maven
+2. $ mvn -Pserver clean compile exec:exec
+3. $ mvn -Pclient clean compile exec:exec -Dserver.host=localhost
 
 The client can be run on multiple hosts (or multiple times on the same host).
