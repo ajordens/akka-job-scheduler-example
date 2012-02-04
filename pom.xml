@@ -11,6 +11,10 @@
     <version>1.0-SNAPSHOT</version>
     <url>http://onesecondshy.com</url>
 
+    <properties>
+        <server.host>localhost</server.host>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>se.scalablesolutions.akka</groupId>
@@ -70,27 +74,65 @@
                 </dependencies>
             </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <executable>java</executable>
-                    <arguments>
-                        <argument>-Dmyproperty=myvalue</argument>
-                        <argument>-classpath</argument>
-                        <classpath/>
-                        <argument>com.onesecondshy.akka.jobscheduler.Client</argument>
-                    </arguments>
-                </configuration>
-            </plugin>
+
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>client</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.2.1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-Dserver.host=${server.host}</argument>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>com.onesecondshy.akka.jobscheduler.Client</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>server</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.2.1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>com.onesecondshy.akka.jobscheduler.Server</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

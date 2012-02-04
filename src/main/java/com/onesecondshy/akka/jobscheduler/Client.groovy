@@ -5,24 +5,30 @@ import akka.actor.ActorRef
 import com.onesecondshy.akka.jobscheduler.events.GetJob
 import com.onesecondshy.akka.jobscheduler.events.GetJobResult
 import com.onesecondshy.akka.jobscheduler.events.UpdateJob
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * @author Adam Jordens (adam@jordens.org)
  */
 class Client {
+    private Logger logger = LoggerFactory.getLogger(this.getClass())
+    
     private final String name
     private final int numberOfWorkers
     private final ActorRef server
 
-    Client(String name, int numberOfWorkers) {
+    Client(String hostname, String name, int numberOfWorkers) {
         this.name = name
         this.numberOfWorkers = numberOfWorkers
-        this.server = Actors.remote().actorFor("job:service", "192.168.1.110", 2552)
+        this.server = Actors.remote().actorFor("job:service", hostname, 2552)
+        
+        logger.info("Connecting to ${hostname}")
     }
 
     public void run() {
         while(true) {
-            println "Looking for Jobs"
+            logger.info("Looking for Jobs")
 
             GetJobResult result = (GetJobResult) server.sendRequestReply(new GetJob())
 
@@ -31,7 +37,7 @@ class Client {
                 try {
                     jobResults[it] = it.execute().text
                 } catch (Exception e) {
-                    println("Unable to execute ${it}")
+                    logger.info("Unable to execute ${it}")
                     jobResults[it] = null
                 }
             }
@@ -42,9 +48,7 @@ class Client {
     }
 
     public static void main(String[] args) {
-        println "Client"
-        
-        new Client("localhost[client]", 20).run()
-        
+        def hostname = System.getProperty('server.host', 'localhost')
+        new Client(hostname, "localhost[client]", 20).run()
     }
 }

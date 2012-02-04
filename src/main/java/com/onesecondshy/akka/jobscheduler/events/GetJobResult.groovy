@@ -6,11 +6,11 @@ package com.onesecondshy.akka.jobscheduler.events
 class GetJobResult extends Event {
     private static final long serialVersionUID = -1354942905395394545L;
 
-    String jobId
-    List<String> commandLines
+    final String jobId
+    final List<String> commandLines
 
     public GetJobResult(String jobId, List<String> commandLines) {
-        this.jobId
+        this.jobId = jobId
         this.commandLines = commandLines
     }
 
