@@ -60,7 +60,7 @@
                         <argument>-Dserver.host=${server.host}</argument>
                         <argument>-classpath</argument>
                         <classpath/>
-                        <argument>com.onesecondshy.akka.jobscheduler.Client</argument>
+                        <argument>com.onesecondshy.akka.jobscheduler.client.Client</argument>
                     </arguments>
                 </configuration>
             </plugin>
