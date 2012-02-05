@@ -7,46 +7,15 @@
     <name>akka-job-scheduler</name>
     <groupId>com.onesecondshy</groupId>
     <artifactId>akka-job-scheduler</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <url>http://onesecondshy.com</url>
 
-    <properties>
-        <server.host>localhost</server.host>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>se.scalablesolutions.akka</groupId>
-            <artifactId>akka-actor</artifactId>
-            <version>1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>se.scalablesolutions.akka</groupId>
-            <artifactId>akka-typed-actor</artifactId>
-            <version>1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>se.scalablesolutions.akka</groupId>
-            <artifactId>akka-remote</artifactId>
-            <version>1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy</artifactId>
-            <version>1.8.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.6.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.6.4</version>
-        </dependency>
-    </dependencies>
+    <modules>
+        <module>akka-job-scheduler-common</module>
+        <module>akka-job-scheduler-client</module>
+        <module>akka-job-scheduler-server</module>
+    </modules>
 
     <repositories>
         <repository>
@@ -56,11 +25,124 @@
         </repository>
     </repositories>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>se.scalablesolutions.akka</groupId>
+                <artifactId>akka-actor</artifactId>
+                <version>1.3</version>
+            </dependency>
+            <dependency>
+                <groupId>se.scalablesolutions.akka</groupId>
+                <artifactId>akka-typed-actor</artifactId>
+                <version>1.3</version>
+            </dependency>
+            <dependency>
+                <groupId>se.scalablesolutions.akka</groupId>
+                <artifactId>akka-remote</artifactId>
+                <version>1.3</version>
+            </dependency>
+            <dependency>
+                <groupId>se.scalablesolutions.akka</groupId>
+                <artifactId>akka-kernel</artifactId>
+                <version>1.3</version>
+            </dependency>
+            <dependency>
+                <groupId>se.scalablesolutions.akka</groupId>
+                <artifactId>akka-http</artifactId>
+                <version>1.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy</artifactId>
+                <version>1.8.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.6.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>1.6.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-webapp</artifactId>
+                <version>7.4.0.v20110414</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>7.4.0.v20110414</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-jaxrs</artifactId>
+                <version>1.9.3</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.3.2</version>
+                    <configuration>
+                        <compilerId>groovy-eclipse-compiler</compilerId>
+                        <verbose>true</verbose>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>1.2.1</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>exec</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jetty-maven-plugin</artifactId>
+                    <version>7.4.0.v20110414</version>
+                    <configuration>
+                        <scanIntervalSeconds>10</scanIntervalSeconds>
+                        <stopKey>foo</stopKey>
+                        <stopPort>9999</stopPort>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>start-jetty</id>
+                            <phase>pre-integration-test</phase>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                            <configuration>
+                                <scanIntervalSeconds>0</scanIntervalSeconds>
+                                <daemon>true</daemon>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>stop-jetty</id>
+                            <phase>post-integration-test</phase>
+                            <goals>
+                                <goal>stop</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
                 <configuration>
                     <compilerId>groovy-eclipse-compiler</compilerId>
                     <verbose>true</verbose>
@@ -73,66 +155,6 @@
                     </dependency>
                 </dependencies>
             </plugin>
-
-
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>client</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.2.1</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-Dserver.host=${server.host}</argument>
-                                <argument>-classpath</argument>
-                                <classpath/>
-                                <argument>com.onesecondshy.akka.jobscheduler.Client</argument>
-                            </arguments>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>server</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.2.1</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <classpath/>
-                                <argument>com.onesecondshy.akka.jobscheduler.Server</argument>
-                            </arguments>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

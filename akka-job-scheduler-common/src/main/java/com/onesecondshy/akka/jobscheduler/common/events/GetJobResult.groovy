@@ -1,4 +1,4 @@
-package com.onesecondshy.akka.jobscheduler.events
+package com.onesecondshy.akka.jobscheduler.common.events
 
 /**
  * @author Adam Jordens (adam@jordens.org)

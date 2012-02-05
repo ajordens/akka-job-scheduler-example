@@ -1,12 +1,12 @@
-package com.onesecondshy.akka.jobscheduler
+package com.onesecondshy.akka.jobscheduler.client
 
 import akka.actor.Actors
 import akka.actor.ActorRef
-import com.onesecondshy.akka.jobscheduler.events.GetJob
-import com.onesecondshy.akka.jobscheduler.events.GetJobResult
-import com.onesecondshy.akka.jobscheduler.events.UpdateJob
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import com.onesecondshy.akka.jobscheduler.common.events.GetJobResult
+import com.onesecondshy.akka.jobscheduler.common.events.GetJob
+import com.onesecondshy.akka.jobscheduler.common.events.UpdateJob
 
 /**
  * @author Adam Jordens (adam@jordens.org)
@@ -30,19 +30,24 @@ class Client {
         while(true) {
             logger.info("Looking for Jobs")
 
-            GetJobResult result = (GetJobResult) server.sendRequestReply(new GetJob())
+            try {
+                GetJobResult result = (GetJobResult) server.sendRequestReply(new GetJob())
 
-            Map<String, String> jobResults = [:]
-            result.commandLines.each {
-                try {
-                    jobResults[it] = it.execute().text
-                } catch (Exception e) {
-                    logger.info("Unable to execute ${it}")
-                    jobResults[it] = null
+                Map<String, String> jobResults = [:]
+                result.commandLines.each {
+                    try {
+                        jobResults[it] = it.execute().text
+                    } catch (Exception e) {
+                        logger.info("Unable to execute ${it}")
+                        jobResults[it] = null
+                    }
                 }
-            }
 
-            server.sendOneWay(new UpdateJob(result.jobId, "COMPLETE", jobResults))
+                server.sendOneWay(new UpdateJob(result.jobId, "COMPLETE", jobResults))
+            } catch (Exception e) {
+                logger.error("Unable to get job", e)
+            }
+            
             Thread.sleep(15000)
         }
     }

@@ -16,7 +16,15 @@ Instructions
 ------------
 
 1. Install Maven
-2. $ mvn -Pserver clean compile exec:exec
-3. $ mvn -Pclient clean compile exec:exec -Dserver.host=localhost
+2. $ mvn clean install
+3. $ cd akka-job-scheduler-server ; mvn jetty:run
+4. $ cd akka-job-scheduler-client ; mvn exec:exec -Dserver.host=localhost
 
 The client can be run on multiple hosts (or multiple times on the same host).
+
+To Do
+-----
+
+1. Add API for Submitting Jobs
+2. Job Tracking
+3. More real-world use case

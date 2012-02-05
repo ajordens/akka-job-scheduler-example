@@ -1,13 +1,13 @@
-package com.onesecondshy.akka.jobscheduler.actors
+package com.onesecondshy.akka.jobscheduler.server.actors
 
 import akka.actor.UntypedActor
 import akka.actor.ActorRef
 import akka.config.Supervision
 
-import com.onesecondshy.akka.jobscheduler.events.GetJob
+import com.onesecondshy.akka.jobscheduler.common.events.GetJob
 import akka.actor.Actors
-import com.onesecondshy.akka.jobscheduler.events.GetJobResult
-import com.onesecondshy.akka.jobscheduler.events.UpdateJob
+import com.onesecondshy.akka.jobscheduler.common.events.GetJobResult
+import com.onesecondshy.akka.jobscheduler.common.events.UpdateJob
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -17,12 +17,10 @@ import org.slf4j.LoggerFactory
 class JobServer extends UntypedActor {
     private Logger logger = LoggerFactory.getLogger(this.getClass())
 
-
     private ActorRef storage = null
     private JobManagement jobMgr = null
     private ClientManagement clientMgr = null
     public JobServer() {
-
         Supervision.FaultHandlingStrategy faultHandler = new Supervision.OneForOneStrategy(
                 null, // exceptions to handle
                 null, // max restart retries
@@ -31,15 +29,11 @@ class JobServer extends UntypedActor {
 
         jobMgr = new JobManagement(getContext(), storage)
         clientMgr = new ClientManagement(getContext(), jobMgr)
-
-        logger.info("Job server is starting up...")
     }
 
     public void preStart() {
         Actors.remote().start("0.0.0.0", 2552)
         Actors.remote().register("job:service", getContext())
-        
-        logger.info("Job server is started")
     }
     
     public void onReceive(final Object msg) {
@@ -84,6 +78,8 @@ class JobServer extends UntypedActor {
                                 ]
                         )
                 )
+                
+                logger.info("Found 1 available job")
             } else if (msg instanceof UpdateJob) {
                 def updateJob = (UpdateJob) msg
                 println updateJob
