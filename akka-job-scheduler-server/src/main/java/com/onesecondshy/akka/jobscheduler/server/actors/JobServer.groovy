@@ -10,6 +10,7 @@ import com.onesecondshy.akka.jobscheduler.common.events.GetJobResult
 import com.onesecondshy.akka.jobscheduler.common.events.UpdateJob
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * @author Adam Jordens (adam@jordens.org)
@@ -20,6 +21,9 @@ class JobServer extends UntypedActor {
     private ActorRef storage = null
     private JobManagement jobMgr = null
     private ClientManagement clientMgr = null
+
+    static ConcurrentHashMap poorManStorage = new ConcurrentHashMap<String, UpdateJob>()
+    
     public JobServer() {
         Supervision.FaultHandlingStrategy faultHandler = new Supervision.OneForOneStrategy(
                 null, // exceptions to handle
@@ -27,7 +31,7 @@ class JobServer extends UntypedActor {
                 null) // within time in ms
         getContext().setFaultHandler(faultHandler)
 
-        jobMgr = new JobManagement(getContext(), storage)
+        jobMgr = new JobManagement(getContext(), poorManStorage)
         clientMgr = new ClientManagement(getContext(), jobMgr)
     }
 
@@ -53,10 +57,10 @@ class JobServer extends UntypedActor {
      */
     private class JobManagement {
         private ActorRef self = null
-        private ActorRef storage = null
         private Map<String, ActorRef> sessions = new HashMap<String, ActorRef>()
+        private ConcurrentHashMap<String, UpdateJob> storage
 
-        public JobManagement(ActorRef self, ActorRef storage) {
+        public JobManagement(ActorRef self, ConcurrentHashMap<String, UpdateJob> storage) {
             this.self = self
             this.storage = storage
         }
@@ -82,7 +86,8 @@ class JobServer extends UntypedActor {
                 logger.info("Found 1 available job")
             } else if (msg instanceof UpdateJob) {
                 def updateJob = (UpdateJob) msg
-                println updateJob
+                storage.putIfAbsent(updateJob.jobId, updateJob)
+                logger.info("Job ${updateJob.jobId} has been updated")
             }
         }
 

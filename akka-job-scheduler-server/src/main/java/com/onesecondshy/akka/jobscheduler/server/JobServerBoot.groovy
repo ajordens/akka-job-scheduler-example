@@ -18,6 +18,6 @@ class JobServerBoot {
     JobServerBoot() {
         ActorRef server = Actors.actorOf(JobServer.class);
         server.start();
-        logger.info("Job com.onesecondshy.akka.jobscheduler.server.Server has been started")
+        logger.info("Job Server has been started")
     }
 }

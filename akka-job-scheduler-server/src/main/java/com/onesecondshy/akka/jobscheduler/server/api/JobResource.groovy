@@ -6,11 +6,13 @@ import javax.ws.rs.GET
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.codehaus.jackson.map.ObjectMapper
+import com.onesecondshy.akka.jobscheduler.server.actors.JobServer
+import com.onesecondshy.akka.jobscheduler.common.events.UpdateJob
 
 /**
  * @author Adam Jordens (adam@jordens.org)
  */
-@Path("/com.onesecondshy.akka.jobscheduler.server.api/v1/jobs")
+@Path("/api/v1/jobs")
 class JobResource {
     private Logger logger = LoggerFactory.getLogger(this.getClass())
 
@@ -18,14 +20,14 @@ class JobResource {
 
     @Produces("application/json")
     @GET
-    String getRunningJobs() {
-        def jobs = [
-                [
-                        jobId: UUID.randomUUID().toString(),
-                        status: 'RUNNING',
-                        lastUpdated: new Date()
-                ]
-        ]
+    String getAllJobs() {
+        def jobs = []
+        JobServer.poorManStorage.each {String jobId, UpdateJob message ->
+            jobs << [
+                    jobId: jobId,
+                    results: message.results
+            ]
+        }
 
         return objectMapper.writeValueAsString(jobs)
     }
