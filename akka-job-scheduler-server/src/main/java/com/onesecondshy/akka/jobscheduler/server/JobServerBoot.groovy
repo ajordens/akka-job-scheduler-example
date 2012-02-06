@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory
 import akka.config.TypedActorConfigurator
 
 /**
+ * Start the JobServer actor.
+ *
  * @author Adam Jordens (adam@jordens.org)
  */
 class JobServerBoot {

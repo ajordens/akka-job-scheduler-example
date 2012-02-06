@@ -9,26 +9,33 @@ import com.onesecondshy.akka.jobscheduler.common.events.GetJob
 import com.onesecondshy.akka.jobscheduler.common.events.UpdateJob
 
 /**
+ * Connect to a JobServer and runs any available jobs.
+ *
  * @author Adam Jordens (adam@jordens.org)
  */
 class Client {
     private Logger logger = LoggerFactory.getLogger(this.getClass())
-    
+
     private final String name
-    private final int numberOfWorkers
     private final ActorRef server
 
-    Client(String hostname, String name, int numberOfWorkers) {
+    /**
+     * @param hostname Job server hostname
+     * @param name Name of this client node, should be unique.
+     */
+    Client(String hostname, String name) {
         this.name = name
-        this.numberOfWorkers = numberOfWorkers
         this.server = Actors.remote().actorFor("job:service", hostname, 2552)
-        
-        logger.info("Connecting to ${hostname}")
+
+        logger.info("Connecting Client[${name}] to Server[${hostname}:2552]")
     }
 
+    /**
+     * Periodically check with the job server for any new jobs.
+     */
     public void run() {
-        while(true) {
-            logger.info("Looking for Jobs")
+        while (true) {
+            logger.info("Looking for new jobs")
 
             try {
                 GetJobResult result = (GetJobResult) server.sendRequestReply(new GetJob())
@@ -47,13 +54,20 @@ class Client {
             } catch (Exception e) {
                 logger.error("Unable to get job", e)
             }
-            
+
             Thread.sleep(15000)
         }
     }
 
+    /**
+     * Start the client.
+     *
+     * - server hostname passed in via a 'server.host' system property, defaults to 'localhost'
+     *
+     * @param args No supported command-line arguments
+     */
     public static void main(String[] args) {
         def hostname = System.getProperty('server.host', 'localhost')
-        new Client(hostname, "localhost[client]", 20).run()
+        new Client(hostname, "${java.net.InetAddress.getLocalHost().getHostAddress()}").run()
     }
 }

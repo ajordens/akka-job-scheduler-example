@@ -18,6 +18,9 @@ class JobResource {
 
     private ObjectMapper objectMapper = new ObjectMapper()
 
+    /**
+     * @return A list of all jobs (available, running, completed)
+     */
     @Produces("application/json")
     @GET
     String getAllJobs() {

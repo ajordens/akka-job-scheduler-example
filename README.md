@@ -5,6 +5,8 @@ A sample job scheduler application using the Java API for Akka, built by Maven.
 
 This application provides a simple introduction into remote Java actors and the request/reply model in Akka.
 
+Groovy + Remote Akka + Http/REST Akka + Maven
+
 Dependencies
 ------------
 
@@ -21,6 +23,8 @@ Instructions
 4. $ cd akka-job-scheduler-client ; mvn exec:exec -Dserver.host=localhost
 
 The client can be run on multiple hosts (or multiple times on the same host).
+
+To get a listing of jobs, http://localhost:8080/api/v1/jobs (assuming you're running the server locally)
 
 To Do
 -----

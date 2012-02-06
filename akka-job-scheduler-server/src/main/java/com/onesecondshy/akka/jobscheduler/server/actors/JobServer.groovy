@@ -13,6 +13,12 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 
 /**
+ * JobServer runs as 'job:service' on 0.0.0.0:2552.
+ *
+ * Responsible for:
+ * - delivering available jobs to clients
+ * - updating job states (AVAILABLE -> RUNNING -> COMPLETED)
+ *
  * @author Adam Jordens (adam@jordens.org)
  */
 class JobServer extends UntypedActor {
@@ -35,16 +41,22 @@ class JobServer extends UntypedActor {
         clientMgr = new ClientManagement(getContext(), jobMgr)
     }
 
+    /**
+     * Register a 'job:service' on 0.0.0.0:2552
+     */
+    @Override
     public void preStart() {
         Actors.remote().start("0.0.0.0", 2552)
         Actors.remote().register("job:service", getContext())
     }
-    
+
+    @Override
     public void onReceive(final Object msg) {
         jobMgr.handleReceive(msg)
         clientMgr.handleReceive(msg)
     }
 
+    @Override
     public void postStop() {
         logger.info("Job server is shutting down...")
         jobMgr.shutdownSessions()
@@ -53,7 +65,10 @@ class JobServer extends UntypedActor {
     }
 
     /**
-     * Implements user session management.
+     * Job Management.
+     *
+     * - Delivering new jobs to client
+     * - Updating job states based on client responses
      */
     private class JobManagement {
         private ActorRef self = null
@@ -99,7 +114,9 @@ class JobServer extends UntypedActor {
     }
 
     /**
-     * Implements chat management, e.g. chat message dispatch.
+     * Client management.
+     *
+     * - Tracking what job clients are available and what jobs are running on each
      */
     private class ClientManagement {
         private ActorRef self = null
